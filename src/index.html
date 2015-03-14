@@ -1,0 +1,44 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>PINGO Vote</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+
+<body ng-app="pingoVote">
+	<div class="container" ng-controller="ParticipationController">
+		<h3>{{ event.name }}</h3>
+
+		<form ng-submit="sendVote(selected)">
+			<fieldset>
+				<legend>Bitte wählen Sie eine Antwortoption</legend>
+				<div class="well" ng-repeat="option in event.options">
+					<label><input type="radio" ng-model="$parent.selected" ng-value="option"> {{ option.name }}</label>
+				</div>
+			</fieldset>
+			<div class="alert alert-success" ng-show="selected">
+				<strong>DEBUG</strong>
+				<p>{{ selected.name }}</p>
+			</div>
+			<button type="submit" class="btn btn-primary">Rock the Vote!</button>
+		</form>
+	</div>
+
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.12/angular.min.js"></script>
+	<script src="js/all.js"></script>
+	<script type='text/javascript' id="__bs_script__">//<![CDATA[
+	document.write("<script async src='http://HOST:3001/browser-sync/browser-sync-client.2.2.4.js'><\/script>".replace("HOST", location.hostname));
+//]]></script>
+</body>
+</html>

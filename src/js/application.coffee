@@ -1,0 +1,1 @@
+pingoVote = angular.module "pingoVote", []

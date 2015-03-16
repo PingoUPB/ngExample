@@ -31,16 +31,19 @@ browserSync = require 'browser-sync'
 isProd = gutil.env.type is 'prod'
 
 sources =
-  sass: 'src/css/**/*.scss'
+  sass: 'src/css/main.scss'
+  watchscss: 'src/css/**/*.scss'
   css: 'src/css/**/*.css'
   html: 'src/**/*.html'
   js: 'src/js/**/*.js'
   coffee: 'src/js/**/*.coffee'
+  images: 'src/images/**/*.{png,jpg,svg,gif}'
 
 targets =
   css: 'www/css'
   html: 'www/'
   js: 'www/js'
+  images: 'www/images'
 
 # Check for errors
 gulp.task 'lint', ->
@@ -54,16 +57,22 @@ gulp.task 'js', ->
   # Vendor files
   stream.queue(gulp.src(sources.js))
   # App files use Coffee
-  stream.queue(gulp.src(sources.coffee).pipe(coffee(bare:true)))
+  stream.queue(gulp.src(sources.coffee).pipe(coffee(bare:true, onError: browserSync.notify)))
   stream.done()
     .pipe(concat("all.js"))
-    .pipe(if isProd then uglify() else gutil.noop())
+    .pipe(if isProd then uglify(onError: gutil.log) else gutil.noop())
     .pipe(gulp.dest(targets.js))
+    .pipe(browserSync.reload({stream: true}))
 
-# Compile Slim
+# Copy HTML
 gulp.task 'html', ->
   gulp.src(sources.html)
     .pipe(gulp.dest(targets.html))
+
+# Copy images
+gulp.task 'images', ->
+  gulp.src(sources.images)
+    .pipe(gulp.dest(targets.images))
 
 # Compile CSS
 gulp.task 'css', ->
@@ -71,11 +80,19 @@ gulp.task 'css', ->
   # Vendor files
   stream.queue(gulp.src(sources.css))
   # App files
-  stream.queue(gulp.src(sources.sass).pipe(sass(style: 'expanded', includePaths: ['src/css'], errLogToConsole: true)))
+  stream.queue(gulp.src(sources.sass).pipe(sass({ 
+    style: 'expanded', 
+    onError: browserSync.notify 
+  }))
+  .pipe(autoprefix({
+      browsers: ['last 2 versions'],
+      cascade: false
+  })))
   stream.done()
     .pipe(concat("all.css"))
-    .pipe(if isProd then uglify() else gutil.noop())
+    .pipe(if isProd then cssmin(onError: gutil.log) else gutil.noop())
     .pipe(gulp.dest(targets.css))
+    .pipe(browserSync.reload({stream: true}))
 
 # Reload browser
 gulp.task 'server', ->
@@ -93,13 +110,14 @@ gulp.task 'watch', ->
   gulp.watch sources.coffee, ['js']
   gulp.watch sources.js, ['js']
   gulp.watch sources.css, ['css']
-  gulp.watch sources.scss, ['css']
+  gulp.watch sources.watchscss, ['css']
   gulp.watch sources.html, ['html']
-  gulp.watch 'www/**/**', (file) ->
+  gulp.watch sources.images, ['images']
+  gulp.watch 'www/**/*.html', (file) ->
     browserSync.reload(file.path) if file.type is "changed"
 
 # Build everything
-gulp.task 'build', ['lint', 'js', 'css', 'slim']
+gulp.task 'build', ['lint', 'js', 'css', 'html', 'images']
 
 # Start a server and watch for file changes
 gulp.task 'default', ['watch', 'server']

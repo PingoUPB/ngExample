@@ -9,7 +9,5 @@ pingoVote.controller "ParticipationController", ($scope, $http) ->
 		if option 
 			window.alert option.name
 		else 
-			window.alert "Bitte eine Antwort wählen!"
-
-		# Insert XHR here
+			window.alert "Bitte eine Antwort wählen! "
 		

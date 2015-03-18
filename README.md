@@ -1,6 +1,7 @@
 # ngExample
 Small angular app for presentational purposes
 
+**Slides:** <http://cl.ly/231y1S403l3B>
 
 ## Development
 
